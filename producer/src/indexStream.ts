@@ -1,36 +1,4 @@
-//APOLLO CLIENT
-import fetch from "cross-fetch"
-import {
-	ApolloClient,
-	InMemoryCache,
-	// ApolloProvider,
-	// useQuery,
-	gql,
-	HttpLink,
-} from "@apollo/client"
-
-const client = new ApolloClient({
-	link: new HttpLink({ uri: "http://localhost:3002/graphql", fetch }),
-	cache: new InMemoryCache(),
-})
-
-function queryBooks() {
-	client
-		.query({
-			query: gql`
-				query Books {
-					books {
-						id
-						name
-						numberOfPages
-					}
-				}
-			`,
-		})
-		.then((result) => console.log(result.data))
-}
-
-queryBooks()
+//Je garde le code pour les streams au cas ou
 
 //KAFKA PRODUCER
 import Kafka from "node-rdkafka"
