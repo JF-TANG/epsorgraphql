@@ -34,36 +34,32 @@ queryBooks()
 
 //KAFKA PRODUCER
 import Kafka from "node-rdkafka"
-const producer = new Kafka.HighLevelProducer({
-	"metadata.broker.list": "localhost:9092",
-	dr_cb: true,
-})
-producer.connect()
+const stream = Kafka.Producer.createWriteStream(
+	{
+		"metadata.broker.list": "localhost:9092",
+	},
+	{},
+	{
+		topic: "test",
+	}
+)
 
-//KAFKA EVENT
-function eventAddBook(name: string, numberOfPages: number) {
-	producer.produce(
-		"test",
-		null,
-		Buffer.from(JSON.stringify({ name, numberOfPages })),
-		null,
-		Date.now(),
-		(err, offset) => {
-			if (err) {
-				console.log(err)
-			}
-			// The offset if our acknowledgement level allows us to receive delivery offsets
-			console.log(offset)
-		}
-	)
-}
-
-producer.on("event.error", function (err) {
-	console.error("Error from producer")
+stream.on("error", function (err) {
+	console.error("Error in our kafka stream")
 	console.error(err)
 })
 
-producer.setPollInterval(1000)
+//KAFKA EVENT
+function eventAddBook(name: string, numberOfPages: number) {
+	const success = stream.write(
+		Buffer.from(JSON.stringify({ name, numberOfPages }).toString())
+	)
+	if (success) {
+		console.log(JSON.stringify({ name, numberOfPages }).toString())
+	} else {
+		console.log("Error")
+	}
+}
 
 setInterval(() => {
 	eventAddBook("Nom de livre", 150)

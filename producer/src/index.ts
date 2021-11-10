@@ -17,6 +17,7 @@ const client = new ApolloClient({
 function queryBooks() {
 	client
 		.query({
+			fetchPolicy: "no-cache",
 			query: gql`
 				query Books {
 					books {
@@ -30,37 +31,41 @@ function queryBooks() {
 		.then((result) => console.log(result.data))
 }
 
-queryBooks()
-
 //KAFKA PRODUCER
 import Kafka from "node-rdkafka"
-const stream = Kafka.Producer.createWriteStream(
-	{
-		"metadata.broker.list": "localhost:9092",
-	},
-	{},
-	{
-		topic: "test",
-	}
-)
-
-stream.on("error", function (err) {
-	console.error("Error in our kafka stream")
-	console.error(err)
+const producer = new Kafka.HighLevelProducer({
+	"metadata.broker.list": "localhost:9092",
+	dr_cb: true,
 })
+producer.connect()
 
 //KAFKA EVENT
 function eventAddBook(name: string, numberOfPages: number) {
-	const success = stream.write(
-		Buffer.from(JSON.stringify({ name, numberOfPages }).toString())
+	producer.produce(
+		"test",
+		null,
+		Buffer.from(JSON.stringify({ name, numberOfPages })),
+		null,
+		Date.now(),
+		(err, offset) => {
+			if (err) {
+				console.log(err)
+			}
+			// Acknowledge
+			if (offset) {
+				queryBooks()
+			}
+		}
 	)
-	if (success) {
-		console.log(JSON.stringify({ name, numberOfPages }).toString())
-	} else {
-		console.log("Error")
-	}
 }
 
+producer.on("event.error", function (err) {
+	console.error("Error from producer")
+	console.error(err)
+})
+
+producer.setPollInterval(1000)
+
 setInterval(() => {
-	eventAddBook("Nom de livre", 150)
+	eventAddBook("Nom du Livre", 150)
 }, 3000)
