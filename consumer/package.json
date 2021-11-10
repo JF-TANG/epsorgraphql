@@ -1,21 +1,24 @@
 {
-	"name": "epsorgraphql",
+	"name": "consumer",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "nodemon --exec ts-node src/index.ts"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@apollo/client": "^3.4.17",
 		"apollo-server-express": "^3.5.0",
 		"class-validator": "^0.13.1",
+		"cross-fetch": "^3.1.4",
 		"express": "^4.17.1",
 		"graphql": "^15.3.0",
 		"mongodb": "^3.7.3",
+		"node-rdkafka": "^2.11.0",
+		"react": "^17.0.2",
 		"reflect-metadata": "^0.1.13",
 		"type-graphql": "^1.1.1",
 		"typeorm": "^0.2.38"
